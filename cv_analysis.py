@@ -8,8 +8,6 @@ import pandas as pd
 import numpy as np
 import csv
 import matplotlib.pyplot as plt
-import copy 
-from sklearn.linear_model import LinearRegression
 
 def media(vetor):
         soma = 0
@@ -100,7 +98,7 @@ def plot_lines(x, y, dy):
 	
 def main():
 
-	## List of the names of the files needs to be provided
+	## File names list needs to be provided
 	fileNames = ['SPE_FC_3.txt','SPE_Gaiola_2.txt','PadraoK3_Gaiola_cell3eletrodos.txt']
 
 	## Import file to pandas dataFrame
