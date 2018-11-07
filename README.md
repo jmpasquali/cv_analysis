@@ -1,7 +1,7 @@
 # cv_analysis
 
 Calculate anodic and cathodic peak curents from cyclic voltammetry experimental data file list. 
-Plots cyclic voltammetry, anodic and cathodic peaks and linear regression of capacitive backgroud calculated for each set. Produces output text file with anodic and cathodic peak information (current and potential). Developed for one cycle only and IUPAC's convention. 
+Plots cyclic voltammetry, anodic and cathodic peaks and linear regression of capacitive backgroud calculated for each set. Produces output text file with anodic and cathodic peak information (current and potential). Developed for one cycle only and IUPAC's convention of direction. 
 
 ### How to run: 
 1) Open a terminal/command window.
