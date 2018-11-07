@@ -10,7 +10,7 @@ Plots cyclic voltammetry, anodic and cathodic peaks and linear regression of cap
 ```python cv_analysis.py```
 4) When solicited, type the name of csv file containing file names.
 
-### How to produce your input.csv fileList:
+### How to produce your input.csv file list:
 1) Open a terminal/command window.
 2) Change directiories to the location where your data is saved.
 3) For mac/linux terminal: 
