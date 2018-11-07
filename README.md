@@ -14,7 +14,7 @@ Plots cyclic voltammetry, anodic and cathodic peaks and linear regression of cap
 1) Open a terminal/command window.
 2) Change directiories to the location where your data is saved.
 3) For mac/linux terminal: 
-```ls |grep .txt```
+``` ls |grep <search string> > input.txt```
 4) For Windows command prompt 
 ```ls |grep .txt```
 5) Copy list to file, separate itens with comma
