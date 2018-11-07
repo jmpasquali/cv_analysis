@@ -12,32 +12,71 @@ import copy
 from sklearn.linear_model import LinearRegression
 
 ## ----------------------funcs ----------------------
-def estimate_coef(x, y):
+#--------------------------------------------------------
+def media(vetor):
+        soma = 0
+        for x in vetor:
+            soma = soma + x
+        return soma / len(vetor)    
 
-	## Number of observations/points
-	n = np.size(x)
+#--------------------------------------------------------
+def soma(vetor):
+        soma = 0
+        for x in vetor:
+            soma = soma + x
+        return soma
 
-	## Mean of x and y vector
-	m_x, m_y = np.mean(x), np.mean(y)
+#--------------------------------------------------------
+def multiplica(vetor_x, vetor_y):
+        soma = 0
+        for x,y in zip(vetor_x, vetor_y):
+            soma = soma + x * y
+        return soma
+        
+#--------------------------------------------------------
+def calcula_m(vetor_x, vetor_y):
+    
+        soma_x = soma(vetor_x)
+        soma_x2 = multiplica(vetor_x,vetor_x) 
+        soma_xy = multiplica(vetor_x,vetor_y) 
+        media_x = media(vetor_x)
+        media_y = media(vetor_y)
+        
+        m = (soma_xy - soma_x * media_y) / (soma_x2 - soma_x * media_x)
+        
+        return m
+        
+#--------------------------------------------------------
+def calcula_b(m, vetor_x, vetor_y):
+        
+        media_x = media(vetor_x)
+        media_y = media(vetor_y)
+        
+        b = media_y - m * media_x
+        
+        return b
 
-	## Calculating cross-deviation and deviation about x
-	SS_xy = np.sum(y*x - n * m_y * m_x)
-	SS_xx = np.sum(x*x - n*m_x*m_x)
-
-	## Calculate regression coefficients
-	b_1 = SS_xy / SS_xx
-	b_0 = m_y - b_1 * m_x
-
-	return(b_0, b_1)
-
-def plot_regression_line(x, y, b):
-
-	# predicted response vector
-	y_pred = b[0] + b[1]*x
-
-	# plotting the regression line
-	plt.plot(x, y_pred, color = "m")
-	#plt.plot(x, y, 'ro')
+#--------------------------------------------------------
+def calcula_y_ajuste(m, b, vetor_x):
+    
+    ajuste_y = []
+    for x in vetor_x:
+        y = m * x + b
+        ajuste_y.append(y)
+        
+    return ajuste_y    
+            
+           
+#--------------------------------------------------------
+def cria_grafico(vetor_x, vetor_y, ajuste_y, nome_grafico):
+    
+    plt.plot(vetor_x,vetor_y,'ro', vetor_x, ajuste_y,'b')
+    plt.xlabel('Eixo X')
+    plt.ylabel('Eixo Y')
+    
+    plt.savefig(nome_grafico)
+    plt.show();
+    
 
 def find_slope_idx(x, y, dy):
 
@@ -51,11 +90,11 @@ def find_slope_idx(x, y, dy):
 			soma = soma + dy[i+k]
 		ma20.append(round(soma/20, 3))
 		
-	for i in range(len(dy)-50): 
+	for i in range(len(dy)-75): 
 		soma = 0 
-		for k in range(0,50):
+		for k in range(0,75):
 			soma = soma + dy[i+k]
-		ma50.append(round(soma/50, 3))
+		ma50.append(round(soma/75, 3))
 		
 	## Plot moving averages
 	plt.plot(x[0:len(ma50)], ma50, x[0:len(ma20)], ma20)
@@ -68,12 +107,12 @@ def find_slope_idx(x, y, dy):
 	## Plot intersections 
 	plt.plot(x[idx], ma20_num[idx], 'ro')
 	
-	return idx
+	return int(idx[0])
 
 ##-----------------------main-------------------------
 
 ## Provide list of the names of the files to be processed  
-fileNames = ['PadraoK3_Gaiola_cell3eletrodos.txt'] #,'SPE_FC_3.txt','SPE_Gaiola_2.txt']
+fileNames = ['PadraoK3_Gaiola_cell3eletrodos.txt','SPE_FC_3.txt','SPE_Gaiola_2.txt']
  
 ##SPE_FC_3.txt','SPE_Gaiola_2.txt'
 
@@ -104,20 +143,34 @@ for filename in fileNames:
 	y2 = y_copy[(half+1):end]
 	
 	## Plot all data 
-	plt.plot(x1, y1, x2, y2, x1, dy1, x2, dy2)
+	plt.plot(x1, y1, x2, y2)#, x1, dy1, x2, dy2)
 	plt.xlabel('Eixo X')
 	plt.ylabel('Eixo Y')
 
 
-	## Plot linear regression of 
+	## Plot linear regression of first cycle
 	idx1 = find_slope_idx(x1, y1, dy1)
-	b1 = estimate_coef(np.array(x1[0:idx1[0]]), np.array(y1[0:idx1[0]]))
-	plot_regression_line(x1, y1, b1)
+	half_idx1 = int(0.5*idx1)
+	m1 = calcula_m(x1[(idx1 - half_idx1) : (idx1 + half_idx1)], y1[(idx1 - half_idx1) : (idx1 + half_idx1)])
+	b1 = calcula_b(m1, x1[(idx1 - half_idx1) : (idx1 + half_idx1)], y1[(idx1 - half_idx1) : (idx1 + half_idx1)])
+	y_pred1 = calcula_y_ajuste(m1, b1, x1)
+	plt.plot(x1, y_pred1, color = "m")
 	
+	#b1 = estimate_coef(np.array(x1[0:idx1[0]]), np.array(y1[0:idx1[0]]))
+#	plot_regression_line(x1, y1, b1)
+	
+
 	## Not quite working yet 
-	#idx2 = find_slope_idx(x2, y2, dy2)
-	#b2 = estimate_coef(np.array(x2[0:idx2[0]]),(np.array(y2[0:idx2[0]])))
-	#plot_regression_line(np.array(x2[0:idx2[0]]),np.array(y2[0:idx2[0]]),b2)
+	idx2 = find_slope_idx(x2, y2, dy2)
+	half_idx2 = int(0.5*idx2)
+	m2 = calcula_m(x2[(idx2 - half_idx2) : (idx2 + half_idx2)], y2[(idx2 - half_idx2) : (idx2 + half_idx2)])
+	b2 = calcula_b(m2, x2[(idx2 - half_idx2) : (idx2 + half_idx2)], y2[(idx2 - half_idx2) : (idx2 + half_idx2)])
+	
+	y_pred2 = calcula_y_ajuste(m2, b2, x2)
+	plt.plot(x2, y_pred2, color = "m")
+	
+	print x1, y1, x2, y2, y_pred2
+	print idx2
 	
 	min_pos = y1.argmin() 
 	max_pos = y2.argmax()
