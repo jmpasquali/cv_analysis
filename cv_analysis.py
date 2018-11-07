@@ -13,8 +13,7 @@ def media(vetor):
         soma = 0
         for x in vetor:
             soma = soma + x
-        return soma / len(vetor)    
-
+        return soma / len(vetor)   
 
 def soma(vetor):
         soma = 0
@@ -22,13 +21,11 @@ def soma(vetor):
             soma = soma + x
         return soma
 
-
 def multiplica(vetor_x, vetor_y):
         soma = 0
         for x,y in zip(vetor_x, vetor_y):
             soma = soma + x * y
         return soma
-        
 
 def find_coeffs(x, y):
   
@@ -94,7 +91,6 @@ def plot_lines(x, y, dy):
 	plt.plot(x, y_pred, color = "m")
 	
 	return y_pred
-	
 	
 def main():
 
