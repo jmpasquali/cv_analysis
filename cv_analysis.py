@@ -11,72 +11,52 @@ import matplotlib.pyplot as plt
 import copy 
 from sklearn.linear_model import LinearRegression
 
-## ----------------------funcs ----------------------
-#--------------------------------------------------------
 def media(vetor):
         soma = 0
         for x in vetor:
             soma = soma + x
         return soma / len(vetor)    
 
-#--------------------------------------------------------
+
 def soma(vetor):
         soma = 0
         for x in vetor:
             soma = soma + x
         return soma
 
-#--------------------------------------------------------
+
 def multiplica(vetor_x, vetor_y):
         soma = 0
         for x,y in zip(vetor_x, vetor_y):
             soma = soma + x * y
         return soma
         
-#--------------------------------------------------------
-def calcula_m(vetor_x, vetor_y):
-    
-        soma_x = soma(vetor_x)
-        soma_x2 = multiplica(vetor_x,vetor_x) 
-        soma_xy = multiplica(vetor_x,vetor_y) 
-        media_x = media(vetor_x)
-        media_y = media(vetor_y)
+
+def find_coeffs(x, y):
+  
+        soma_x = soma(x)
+        soma_x2 = multiplica(x,x) 
+        soma_xy = multiplica(x,y) 
+        media_x = media(x)
+        media_y = media(y)
         
         m = (soma_xy - soma_x * media_y) / (soma_x2 - soma_x * media_x)
         
-        return m
-        
-#--------------------------------------------------------
-def calcula_b(m, vetor_x, vetor_y):
-        
-        media_x = media(vetor_x)
-        media_y = media(vetor_y)
+        media_x = media(x)
+        media_y = media(y)
         
         b = media_y - m * media_x
         
-        return b
+        return m, b
 
-#--------------------------------------------------------
-def calcula_y_ajuste(m, b, vetor_x):
+def y_predict(m, b, x):
     
-    ajuste_y = []
-    for x in vetor_x:
-        y = m * x + b
-        ajuste_y.append(y)
+    new_y = []
+    for i in x:
+        y = m * i + b
+        new_y.append(y)
         
-    return ajuste_y    
-            
-           
-#--------------------------------------------------------
-def cria_grafico(vetor_x, vetor_y, ajuste_y, nome_grafico):
-    
-    plt.plot(vetor_x,vetor_y,'ro', vetor_x, ajuste_y,'b')
-    plt.xlabel('Eixo X')
-    plt.ylabel('Eixo Y')
-    
-    plt.savefig(nome_grafico)
-    plt.show();
-    
+    return new_y    
 
 def find_slope_idx(x, y, dy):
 
@@ -84,103 +64,97 @@ def find_slope_idx(x, y, dy):
 	ma20 = []
 	ma50 = []
 
-	for i in range(len(dy)-20): 
+	for i in range(len(dy)-50): 
 		soma = 0 
-		for k in range(0,20):
+		for k in range(0,50):
 			soma = soma + dy[i+k]
-		ma20.append(round(soma/20, 3))
+		ma20.append(round(soma/50, 3))
 		
 	for i in range(len(dy)-75): 
 		soma = 0 
 		for k in range(0,75):
 			soma = soma + dy[i+k]
 		ma50.append(round(soma/75, 3))
-		
-	## Plot moving averages
-	plt.plot(x[0:len(ma50)], ma50, x[0:len(ma20)], ma20)
-		
-	## Find intercepts of movingAverage curves
+
+	## Find intercepts of different moving average curves
 	ma20_num = np.array(ma20)
 	ma50_num = np.array(ma50)
 	idx = np.argwhere(np.diff(np.sign(ma50_num - ma20_num[:len(ma50)]))!= 0).reshape(-1)+0
 	
-	## Plot intersections 
-	plt.plot(x[idx], ma20_num[idx], 'ro')
-	
+	## Uncomment to see whats going on 
+	'''plt.plot(x[idx], ma20_num[idx], 'ro') ## Plot intersections 
+	plt.plot(x[0:len(ma50)], ma50, x[0:len(ma20)], ma20) ## Plot moving averages'''
+
 	return int(idx[0])
 
-##-----------------------main-------------------------
+def plot_lines(x, y, dy):
 
-## Provide list of the names of the files to be processed  
-fileNames = ['PadraoK3_Gaiola_cell3eletrodos.txt','SPE_FC_3.txt','SPE_Gaiola_2.txt']
- 
-##SPE_FC_3.txt','SPE_Gaiola_2.txt'
+	idx = find_slope_idx(x, y, dy) + 25
+	half_idx = int(0.5 * idx)
+	m, b = find_coeffs(x[(idx - half_idx) : (idx + half_idx)], y[(idx - half_idx) : (idx + half_idx)])
+	y_pred = y_predict(m, b, x)
+	plt.plot(x, y_pred, color = "m")
+	
+	return y_pred
+	
+	
+def main():
 
-## Import file to pandas dataFrame
-for filename in fileNames:
+	## List of the names of the files needs to be provided
+	fileNames = ['SPE_FC_3.txt','SPE_Gaiola_2.txt','PadraoK3_Gaiola_cell3eletrodos.txt']
 
-	data = pd.read_csv(filename, sep='\t',decimal=",")
-	print(data.head()) 
+	## Import file to pandas dataFrame
+	for filename in fileNames:
 
-	## Differenciante data 
-	x = pd.to_numeric(data['E /V'])
-	y = pd.to_numeric(data['I /uA.1'])
-	dy = np.diff(y)/0.0035 #(np.diff(x1))
-	
-	## Split Vectors (still needs some work)
-	x_copy = np.array(x)
-	y_copy = np.array(y)
-	dy_copy = np.array(dy)
-	
-	half = int(len(dy)/2)
-	end = int(len(dy))
-	dy1 = dy_copy[0:half]
-	x1 = x_copy[0:half]
-	y1 = y_copy[0:half]
-	
-	dy2 = dy_copy[(half+1):end]
-	x2= x_copy[(half+1):end]
-	y2 = y_copy[(half+1):end]
-	
-	## Plot all data 
-	plt.plot(x1, y1, x2, y2)#, x1, dy1, x2, dy2)
-	plt.xlabel('Eixo X')
-	plt.ylabel('Eixo Y')
+		data = pd.read_csv(filename, sep='\t',decimal=",")
 
+		## Differenciante data 
+		x = pd.to_numeric(data['E /V'])
+		y = pd.to_numeric(data['I /uA.1'])
+		dy = np.diff(y)/(np.diff(x)) # 0.0035 
+	
+		## Split Vectors (still needs some work)
+		x_copy = np.array(x)
+		y_copy = np.array(y)
+		dy_copy = np.array(dy)
+	
+		half = int(len(dy)/2)
+		end = int(len(dy))
+	
+		dy1 = dy_copy[0:half]
+		x1 = x_copy[0:half]
+		y1 = y_copy[0:half]
+	
+		dy2 = dy_copy[(half+1):end]
+		x2= x_copy[(half+1):end]
+		y2 = y_copy[(half+1):end]
+	
+		## Plot all data 
+		plt.plot(x1, y1, x2, y2)
+		plt.xlabel('Eixo X')
+		plt.ylabel('Eixo Y')
 
-	## Plot linear regression of first cycle
-	idx1 = find_slope_idx(x1, y1, dy1)
-	half_idx1 = int(0.5*idx1)
-	m1 = calcula_m(x1[(idx1 - half_idx1) : (idx1 + half_idx1)], y1[(idx1 - half_idx1) : (idx1 + half_idx1)])
-	b1 = calcula_b(m1, x1[(idx1 - half_idx1) : (idx1 + half_idx1)], y1[(idx1 - half_idx1) : (idx1 + half_idx1)])
-	y_pred1 = calcula_y_ajuste(m1, b1, x1)
-	plt.plot(x1, y_pred1, color = "m")
+		## Find linear regression and predicted line	
+		y_pred1 = plot_lines(x1,y1, dy1)
+		y_pred2 = plot_lines(x2,y2, dy2)
 	
-	#b1 = estimate_coef(np.array(x1[0:idx1[0]]), np.array(y1[0:idx1[0]]))
-#	plot_regression_line(x1, y1, b1)
+		## Finds min and max peaks
+		min_pos = y1.argmin() 
+		max_pos = y2.argmax()
 	
+		plt.plot( x1[min_pos], y1[min_pos], 'bo')
+		plt.plot( x2[max_pos], y2[max_pos], 'bo')
+	
+		max_pot = x2[max_pos]
+		max_cur = y2[max_pos] - y_pred1[max_pos]
+		min_pot = x1[min_pos]
+		min_cur = y1[min_pos] - y_pred2[min_pos]
+	
+		print max_cur, max_pot, min_cur, min_pot
+	
+		plt.savefig(filename + '_saida.png')
+		plt.show()
 
-	## Not quite working yet 
-	idx2 = find_slope_idx(x2, y2, dy2)
-	half_idx2 = int(0.5*idx2)
-	m2 = calcula_m(x2[(idx2 - half_idx2) : (idx2 + half_idx2)], y2[(idx2 - half_idx2) : (idx2 + half_idx2)])
-	b2 = calcula_b(m2, x2[(idx2 - half_idx2) : (idx2 + half_idx2)], y2[(idx2 - half_idx2) : (idx2 + half_idx2)])
-	
-	y_pred2 = calcula_y_ajuste(m2, b2, x2)
-	plt.plot(x2, y_pred2, color = "m")
-	
-	print x1, y1, x2, y2, y_pred2
-	print idx2
-	
-	min_pos = y1.argmin() 
-	max_pos = y2.argmax()
-	
-	print(min_pos, max_pos)
-	plt.plot( x1[min_pos], y1[min_pos], 'bo')
-	plt.plot( x2[max_pos], y2[max_pos], 'bo')
-	
-	plt.savefig(filename + '_saida.png')
-	plt.show()
-		
-		
+if __name__ == "__main__":
+    main()
 		 
