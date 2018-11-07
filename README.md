@@ -10,14 +10,13 @@ Plots cyclic voltammetry, anodic and cathodic peaks and linear regression of cap
 ```python cv_analysis.py```
 4) When solicited, type the name of csv file containing file names.
 
-### How to produce your input.csv file list:
+### How to produce your input file list:
 1) Open a terminal/command window.
 2) Change directiories to the location where your data is saved.
 3) For mac/linux terminal: 
 ``` ls |grep <search string> > input.txt```
 4) For Windows command prompt 
 ```ls |grep .txt```
-5) Copy list to file, separate itens with comma
 
  ### Calculations based on the following arcticles: 
  1. [Theory and Application of Cyclic Voltammetry for Measurement of Electrode Reaction Kinetics](https://pubs.acs.org/doi/10.1021/ac60230a016)
