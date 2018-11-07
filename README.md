@@ -18,6 +18,6 @@ Plots cyclic voltammetry, anodic and cathodic peaks and linear regression of cap
 4) For Windows command prompt 
 ```ls |grep .txt```
 
- ### Calculations based on the following arcticles: 
+ ### Calculations based on the following articles: 
  1. [Theory and Application of Cyclic Voltammetry for Measurement of Electrode Reaction Kinetics](https://pubs.acs.org/doi/10.1021/ac60230a016)
  2. [A Practical Beginner’s Guide to Cyclic Voltammetry](https://pubs.acs.org/doi/10.1021/acs.jchemed.7b00361)
