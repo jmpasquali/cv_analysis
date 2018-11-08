@@ -5,14 +5,14 @@ Plots cyclic voltammetry, anodic and cathodic peaks and linear regression of cap
 
 ### How to run: 
 1) Open a terminal/command window.
-2) Change directiories to the location where this file is saved.
+2) Change directories to the location where this file is saved.
 3) Run the program file
 ```python cv_analysis.py```
 4) When solicited, type the name of txt or csv file containing file names, x (potential) column label and y (current) column label.
 
 ### How to produce your input file list:
 1) Open a terminal/command window.
-2) Change directiories to the location where your data is saved.
+2) Change directories to the location where your data is saved.
 3) For mac/linux type this command: 
 ``` ls |grep <search string> > input.txt```
 4) For Windows type:
