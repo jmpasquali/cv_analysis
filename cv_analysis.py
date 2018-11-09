@@ -135,10 +135,14 @@ def main():
 			validFileName = 1
 		except:
 			print 'Invalid input file ' + input 
-		
+	
+	x_label = raw_input('X data column label: ')
+	y_label =  raw_input('Y data column label: ')
+	
 	## Import file to pandas dataFrame
 	out_data ={}
 	validLabels = 0
+	atLeastOne = 0
 	
 	for filename in inputList:
 
@@ -151,65 +155,64 @@ def main():
 			validFileName = 0
 			
 		if (validFileName == 1):
+		
+			try:
+				x = pd.to_numeric(data[x_label]) 
+				y = pd.to_numeric(data[y_label])
+				#x = pd.to_numeric(data['E /V']) 
+				#y = pd.to_numeric(data['I /uA.1'])
 			
-			while(validLabels != 1):
-				x_label = raw_input('X data column label: ')
-				y_label =  raw_input('Y data column label: ')
-				data = pd.read_csv(filename, sep='\t',decimal=",")
-				headers = data.dtypes.index
-				if ((x_label in headers) and (y_label in headers)):
-					validLabels = 1
-				else:
-					print 'Invalid label '+x_label+' or '+y_label+' !!!\n',
+				## Split vectors
+				x1, x2 = split_vector(x)
+				y1, y2 = split_vector(y)
+	
+				## Finds linear background 	
+				y_pred1 = calc_linear_background(x1,y1)
+				y_pred2 = calc_linear_background(x2,y2)
 			
-			#x = pd.to_numeric(data['E /V']) 
-			#y = pd.to_numeric(data['I /uA.1'])
-			x = pd.to_numeric(data[x_label]) 
-			y = pd.to_numeric(data[y_label])
-		
-			## Split vectors
-			x1, x2 = split_vector(x)
-			y1, y2 = split_vector(y)
-		
-			## Finds linear background 	
-			y_pred1 = calc_linear_background(x1,y1)
-			y_pred2 = calc_linear_background(x2,y2)
-	
-			## Cathodic peak current and potential 
-			max_pos = y2.argmax()
-			max_pot = x2[max_pos]
-			max_cur = y2[max_pos] - y_pred1[max_pos]
-		
-			## Anodic peak current and potential 
-			min_pos = y1.argmin() 
-			min_pot = x1[min_pos]
-			min_cur = y1[min_pos] - y_pred2[min_pos]
-			out_data[filename] = {'Ipc': max_cur , 'Vpc': max_pot,'Ipa': min_cur, 'Vpa': min_pot}
-		
-			## Uncomment to check peaks position
-			'''plt.plot( x1[min_pos], y1[min_pos],'orange',marker='o', markersize=5)
-			plt.plot( x2[max_pos], y2[max_pos], 'orange',marker='o', markersize=5)'''
-		
-			## Plot all data 
-			plt.plot(x1, y1,'dodgerblue',linewidth=1) ##darkgrey
-			plt.plot(x2, y2,'dodgerblue', linewidth=1) ##dodgerblue  
-			plt.plot(x1, y_pred1, color = "orangered", linestyle=':',linewidth=2) #orangered 
-			plt.plot(x2, y_pred2, color = "orangered", linestyle=':',linewidth=2) #orangered 
-			graph_format(filename)
-			plt.savefig(filename + '_output.png')
-			print '\nCreating plot for ' + filename + '...',
-			plt.clf()
-	
-	## Writes to file
-	print '\nWriting data to file...',
-	myfile = open('output.txt', 'w')
-	myfile.write('FileName\tIpc [ uA ]\tVpc [ V ]\tIpa [ uA ]\tVpa [ V ]\n')
+				## Cathodic peak current and potential 
+				max_pos = y2.argmax()
+				max_pot = x2[max_pos]
+				max_cur = y2[max_pos] - y_pred1[max_pos]
 
-	for name in out_data:
-	    myString = "%s\t%.2f\t%.2f\t%.2f\t%.2f\n" % (name, out_data[name]['Ipc'], out_data[name]['Vpc'],out_data[name]['Ipa'], out_data[name]['Vpa'])
-	    myfile.write(str(myString))
-	     
-	print 'Done!'
+				## Anodic peak current and potential 
+				min_pos = y1.argmin() 
+				min_pot = x1[min_pos]
+				min_cur = y1[min_pos] - y_pred2[min_pos]
+				out_data[filename] = {'Ipc': max_cur , 'Vpc': max_pot,'Ipa': min_cur, 'Vpa': min_pot}
+				## Uncomment to check peaks position
+				'''plt.plot( x1[min_pos], y1[min_pos],'orange',marker='o', markersize=5)
+				plt.plot( x2[max_pos], y2[max_pos], 'orange',marker='o', markersize=5)'''
+				## Plot all data 
+				plt.plot(x1, y1,'dodgerblue',linewidth=1) ##darkgrey
+				plt.plot(x2, y2,'dodgerblue', linewidth=1) ##dodgerblue  
+				plt.plot(x1, y_pred1, color = "orangered", linestyle=':',linewidth=2) #orangered 
+				plt.plot(x2, y_pred2, color = "orangered", linestyle=':',linewidth=2) #orangered 
+				graph_format(filename)
+				plt.savefig(filename + '_output.png')
+				print '\nCreating plot for ' + filename + '...',
+				plt.clf()
+			
+				atLeastOne = 1
+				
+			except:
+				print '\nData set ' + filename + ' could not be processed',
+	
+	if(atLeastOne == 1):
+	
+		## Writes to file
+		print '\nWriting data to file...',
+		myfile = open('output.txt', 'w')
+		myfile.write('FileName\tIpc [ uA ]\tVpc [ V ]\tIpa [ uA ]\tVpa [ V ]\n')
+
+		for name in out_data:
+		    myString = "%s\t%.2f\t%.2f\t%.2f\t%.2f\n" % (name, out_data[name]['Ipc'], out_data[name]['Vpc'],out_data[name]['Ipa'], out_data[name]['Vpa'])
+		    myfile.write(str(myString))
+	
+		print '\n\nDone!'
+	
+	else:
+		print'\n\nMake sure column labels are correctly typed!!'
 
 if __name__ == "__main__":
     main()
