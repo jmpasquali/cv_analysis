@@ -189,7 +189,7 @@ def main():
 				plt.plot(x1, y_pred1, color = "orangered", linestyle=':',linewidth=2) #orangered 
 				plt.plot(x2, y_pred2, color = "orangered", linestyle=':',linewidth=2) #orangered 
 				graph_format(filename)
-				plt.savefig(filename + '_output.png')
+				plt.savefig(filename[:-4] + '_output.png')
 				print '\nCreating plot for ' + filename + '...',
 				plt.clf()
 			
