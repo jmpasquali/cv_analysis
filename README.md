@@ -13,8 +13,8 @@ Plots cyclic voltammetry, anodic and cathodic peaks and linear regression of cap
 ### How to produce your input file list:
 1) Open a terminal/command window.
 2) Change directories to the location where your data is saved.
-3) For mac/linux type this command: 
-``` ls |grep <search string> > input.txt```
+3) For mac/linux type this command: ``` ls > input.txt``` or
+``` ls |grep "search string" > input.txt```
 4) For Windows type:
 ```dir > input.txt``` or see more [detailed instructions](https://support.microsoft.com/en-us/help/196158/how-to-create-a-text-file-list-of-the-contents-of-a-folder) 
 
