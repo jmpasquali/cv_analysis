@@ -8,6 +8,9 @@ import pandas as pd
 import numpy as np
 import csv
 import matplotlib.pyplot as plt
+import warnings
+import matplotlib.cbook
+
 
 def media(vetor):
         soma = 0
@@ -95,11 +98,12 @@ def calc_linear_background(x, y):
 
 def graph_format(filename):
 
+	warnings.filterwarnings("ignore",category=matplotlib.cbook.mplDeprecation)
 	plt.xlabel(' E [ V ]' )
 	plt.ylabel(' I [ uA ] ')
-	plt.title(filename)
+	plt.title(filename[:-4])
 	plt.grid(color='0', linewidth=0.1)
-	ax = plt.subplot(111)#111)    
+	ax = plt.subplot(111)    
 	ax.spines["top"].set_visible(False)   
 #	ax.spines["bottom"].set_visible(False)    
 	ax.spines["right"].set_visible(False) 
@@ -173,26 +177,28 @@ def main():
 				## Cathodic peak current and potential 
 				max_pos = y2.argmax()
 				max_pot = x2[max_pos]
-				max_cur = y2[max_pos] - y_pred1[max_pos]
+				max_cur = y2[max_pos] - y_pred2[max_pos]
 
 				## Anodic peak current and potential 
 				min_pos = y1.argmin() 
 				min_pot = x1[min_pos]
-				min_cur = y1[min_pos] - y_pred2[min_pos]
+				min_cur = y1[min_pos] - y_pred1[min_pos]
 				out_data[filename] = {'Ipc': max_cur , 'Vpc': max_pot,'Ipa': min_cur, 'Vpa': min_pot}
 				## Uncomment to check peaks position
 				'''plt.plot( x1[min_pos], y1[min_pos],'orange',marker='o', markersize=5)
 				plt.plot( x2[max_pos], y2[max_pos], 'orange',marker='o', markersize=5)'''
+				
 				## Plot all data 
-				plt.plot(x1, y1,'dodgerblue',linewidth=1) ##darkgrey
-				plt.plot(x2, y2,'dodgerblue', linewidth=1) ##dodgerblue  
-				plt.plot(x1, y_pred1, color = "orangered", linestyle=':',linewidth=2) #orangered 
-				plt.plot(x2, y_pred2, color = "orangered", linestyle=':',linewidth=2) #orangered 
+				plt.plot(x1, y1, 'dodgerblue',linewidth=1) ##darkgrey
+				plt.plot(x2, y2, 'dodgerblue', linewidth=1) ##dodgerblue  
+				plt.plot(x1, y_pred1, color = "orangered", linestyle=':',linewidth=2) 
+				plt.plot(x2, y_pred2, color = "orangered", linestyle=':',linewidth=2) 
+				
 				graph_format(filename)
-				plt.savefig(filename[:-4] + '_output.png')
+				plt.savefig(filename + '_output_C.png')
 				print '\nCreating plot for ' + filename + '...',
+				plt.show()
 				plt.clf()
-			
 				atLeastOne = 1
 				
 			except:
@@ -206,11 +212,10 @@ def main():
 		myfile.write('FileName\tIpc [ uA ]\tVpc [ V ]\tIpa [ uA ]\tVpa [ V ]\n')
 
 		for name in out_data:
-		    myString = "%s\t%.2f\t%.2f\t%.2f\t%.2f\n" % (name, out_data[name]['Ipc'], out_data[name]['Vpc'],out_data[name]['Ipa'], out_data[name]['Vpa'])
+		    myString = "%s\t%.4f\t%.4f\t%.4f\t%.4f\n" % (name, out_data[name]['Ipc'], out_data[name]['Vpc'],out_data[name]['Ipa'], out_data[name]['Vpa'])
 		    myfile.write(str(myString))
 	
 		print '\n\nDone!'
-	
 	else:
 		print'\n\nMake sure column labels are correctly typed!!'
 
